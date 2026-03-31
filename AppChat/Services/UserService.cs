@@ -1,4 +1,5 @@
 ﻿using AppChat.Models;
+using AppChat.Models.DTOs;
 using AppChat.Repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -27,5 +28,19 @@ namespace AppChat.Services
         }
 
         public async Task<bool> DeleteUser(int id) => await _repo.DeleteUser(id);
+
+        // Get User Profile (without password) - for mini profile display
+        public async Task<UserProfileDTO> GetUserProfileAsync(int id)
+        {
+            var profile = await _repo.GetUserProfileAsync(id);
+            if (profile == null) throw new KeyNotFoundException("User not found");
+            return profile;
+        }
+
+        // Search users
+        public async Task<List<UserProfileDTO>> SearchUsersAsync(string searchTerm)
+        {
+            return await _repo.SearchUsersAsync(searchTerm);
+        }
     }
 }

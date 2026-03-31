@@ -17,7 +17,8 @@ namespace AppChat.Hubs
         }
 
         public string UserId => Context.UserIdentifier ?? "NULL";  // Get user id from token
-        public override Task OnConnectedAsync()
+        
+        public override async Task OnConnectedAsync()
         {
             try
             {
@@ -42,13 +43,52 @@ namespace AppChat.Hubs
                 {
                     throw new UnauthorizedAccessException("Unauthorized");
                 }
-                return base.OnConnectedAsync();
+
+                // ===== Update user online status =====
+                if (int.TryParse(UserId, out int userId))
+                {
+                    var user = await _context.Users.FindAsync(userId);
+                    if (user != null)
+                    {
+                        user.IsOnline = true;
+                        user.LastSeen = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine($"[OnConnected] User {userId} is now ONLINE");
+                    }
+                }
+
+                await base.OnConnectedAsync();
             }
             catch (Exception ex)
             {
                 throw new HubException("Error: ", ex);
             }
-            
+        }
+
+        // ===== Handle Disconnect =====
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            try
+            {
+                if (int.TryParse(UserId, out int userId))
+                {
+                    var user = await _context.Users.FindAsync(userId);
+                    if (user != null)
+                    {
+                        user.IsOnline = false;
+                        user.LastSeen = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                        Console.WriteLine($"[OnDisconnected] User {userId} is now OFFLINE");
+                    }
+                }
+
+                await base.OnDisconnectedAsync(exception);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[OnDisconnected] Error: {ex.Message}");
+                await base.OnDisconnectedAsync(exception);
+            }
         }
 
         public async Task JoinGroup(string chatId)

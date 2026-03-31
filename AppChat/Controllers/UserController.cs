@@ -1,4 +1,5 @@
 ﻿using AppChat.Models;
+using AppChat.Models.DTOs;
 using AppChat.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,6 +25,7 @@ namespace AppChat.Controllers
             catch (Exception e) { return BadRequest(e.Message); }
         }
 
+        // Get User by ID (full user info - admin only)
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -34,10 +36,35 @@ namespace AppChat.Controllers
             catch (Exception e) { return BadRequest(e.Message); }
         }
 
+        // Get User Profile (mini profile without password - for chat display)
+        [HttpGet("profile/{id}")]
+        public async Task<IActionResult> GetUserProfile(int id)
+        {
+            try
+            {
+                var profile = await _service.GetUserProfileAsync(id);
+                if (profile == null) return NotFound("User not found");
+                return Ok(profile);
+            }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
         [HttpGet("list")]
         public async Task<IActionResult> GetAllUser()
         {
             try { return Ok(await _service.GetAllUsersAsync()); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
+        // Search users by name or phone
+        [HttpGet("search/{term}")]
+        public async Task<IActionResult> SearchUsers(string term)
+        {
+            try
+            {
+                var results = await _service.SearchUsersAsync(term);
+                return Ok(results);
+            }
             catch (Exception e) { return BadRequest(e.Message); }
         }
 

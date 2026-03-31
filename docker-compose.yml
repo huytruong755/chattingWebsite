@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: StrongPassword123
+      POSTGRES_DB: appchatdb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgres://appuser:StrongPassword123@db:5432/appchatdb?sslmode=disable
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Jwt__Key=SuperSecretJWTKeyForAppChat2026_AtLeast32CharactersLong1234567890
+    ports:
+      - "5047:8080"
+    volumes:
+      - ./AppChat/wwwroot/uploads:/app/wwwroot/uploads
+
+volumes:
+  db_data: {}

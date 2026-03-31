@@ -162,11 +162,40 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 
-//Init Migration
-using (var scope = app.Services.CreateScope())    // Comment for local testing
+//Init Database - Create from models
+int maxRetries = 5;
+int retryCount = 0;
+int delayMilliseconds = 2000;
+
+while (retryCount < maxRetries)
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            Console.WriteLine($"[Database] Attempting to initialize (attempt {retryCount + 1}/{maxRetries})...");
+            
+            // Create database schema from models (no migration files needed)
+            db.Database.EnsureCreated();
+            Console.WriteLine("[Database] Success! Schema created.");
+            break;
+        }
+    }
+    catch (Exception ex)
+    {
+        retryCount++;
+        Console.WriteLine($"[Database] Failed: {ex.Message}");
+        if (retryCount < maxRetries)
+        {
+            Console.WriteLine($"[Database] Retrying in {delayMilliseconds}ms...");
+            await Task.Delay(delayMilliseconds);
+        }
+        else
+        {
+            Console.WriteLine("[Database] Max retries reached. Continuing anyway...");
+        }
+    }
 }
 
 app.UseRouting();

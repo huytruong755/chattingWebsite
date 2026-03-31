@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CSharpLearning.Controllers
 {
@@ -69,6 +70,36 @@ namespace CSharpLearning.Controllers
                 var accessToken = _tokenService.GenerateToken(user.Id.ToString(), user.PhoneNumber);
 
                 return Ok(new { accessToken, user.Id });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                // Lấy userId từ token
+                var userIdClaim = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)
+                    ?? User.FindFirstValue("sub");
+
+                if (!int.TryParse(userIdClaim, out int userId))
+                    return BadRequest("Invalid user ID in token.");
+
+                // Cập nhật trạng thái online = false
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    user.IsOnline = false;
+                    user.LastSeen = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(new { message = "Logged out successfully" });
             }
             catch (Exception e)
             {

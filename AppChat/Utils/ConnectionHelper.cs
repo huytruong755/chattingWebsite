@@ -39,9 +39,20 @@ namespace AppChat.Utils
                 Username = userInfo[0],
                 Password = userInfo[1],
                 Database = databaseUri.LocalPath.TrimStart('/'),
-                SslMode = SslMode.Require,
-                TrustServerCertificate = true
+                // SslMode = SslMode.Require,
+                // TrustServerCertificate = true
             };
+
+            if (databaseUrl.ToLowerInvariant().Contains("sslmode=disable"))
+            {
+                builder.SslMode = SslMode.Disable;
+                builder.TrustServerCertificate = false;
+            }
+            else
+            {
+                builder.SslMode = SslMode.Require;
+                builder.TrustServerCertificate = true;
+            }
 
             return builder.ToString();
         }

@@ -1,0 +1,558 @@
+{
+  "info": {
+    "_postman_id": "appchat-api",
+    "name": "AppChat API",
+    "description": "AppChat Backend API Collection - Ready for Frontend Integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0901111111\",\n  \"password\": \"test123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5047/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0901111111\",\n  \"password\": \"test123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5047/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0901222222\",\n  \"password\": \"pass123\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"avatarUrl\": \"\",\n  \"isOnline\": false\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5047/user/new",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "user",
+                "new"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5047/user/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "user",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5047/user/list",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "user",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0901000001\",\n  \"firstName\": \"Dang\",\n  \"lastName\": \"Khoa\",\n  \"avatarUrl\": \"https://avatar.jpg\",\n  \"isOnline\": true\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5047/user/update/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "user",
+                "update",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5047/user/delete/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "user",
+                "delete",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat/Conversation",
+      "item": [
+        {
+          "name": "Get Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5047/chat",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "chat"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact Management",
+      "item": [
+        {
+          "name": "Get User Contacts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5047/contact",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "contact"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Contact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5047/contact/add/0792051912",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "contact",
+                "add",
+                "0792051912"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "Get Messages by Chat ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5047/message/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Text Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SenderId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ReceiverId",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "Content",
+                  "value": "Hello Phuc!",
+                  "type": "text"
+                },
+                {
+                  "key": "FileType",
+                  "value": "text",
+                  "type": "text"
+                },
+                {
+                  "key": "ChatId",
+                  "value": "1",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5047/message/send",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "send"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send File Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SenderId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ReceiverId",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "FileType",
+                  "value": "image",
+                  "type": "text"
+                },
+                {
+                  "key": "File",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "ChatId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5047/message/send",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "send"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "File Upload (Chunked)",
+      "item": [
+        {
+          "name": "Initialize Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileName\": \"large_video.mp4\",\n  \"totalChunks\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5047/message/upload/init",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "upload",
+                "init"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Chunk",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "uploadId",
+                  "value": "abc123def456",
+                  "type": "text"
+                },
+                {
+                  "key": "chunkIndex",
+                  "value": "0",
+                  "type": "text"
+                },
+                {
+                  "key": "fileChunk",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5047/message/upload/chunk",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "upload",
+                "chunk"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Upload Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5047/message/upload/status?uploadId=abc123def456",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "upload",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "uploadId",
+                  "value": "abc123def456"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uploadId\": \"abc123def456\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5047/message/upload/complete",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5047",
+              "path": [
+                "message",
+                "upload",
+                "complete"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
