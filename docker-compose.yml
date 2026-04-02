@@ -16,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - PORT=8080
     restart: unless-stopped
     depends_on:
       - db

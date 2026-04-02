@@ -64,5 +64,25 @@ namespace AppChat.Services
 
             return result;
         }
+
+        public async Task<bool> ArchiveChatAsync(int chatId)
+        {
+            return await _chatRepo.ArchiveChat(chatId);
+        }
+
+        public async Task<bool> UnarchiveChatAsync(int chatId)
+        {
+            return await _chatRepo.UnarchiveChat(chatId);
+        }
+
+        public async Task<bool> DeleteChatAsync(int chatId)
+        {
+            return await _chatRepo.DeleteChat(chatId);
+        }
+
+        public async Task<Chat> GetChatByIdAsync(int chatId)
+        {
+            return await _chatRepo.GetChatById(chatId);
+        }
     }
 }

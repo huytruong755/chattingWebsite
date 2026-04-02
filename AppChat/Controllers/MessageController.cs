@@ -3,11 +3,13 @@ using AppChat.Hubs;
 using AppChat.Models;
 using AppChat.Models.DTOs;
 using AppChat.Repositories;
+using AppChat.Services;
 using AppChat.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace AppChat.Controllers
@@ -21,19 +23,22 @@ namespace AppChat.Controllers
         private readonly IHubContext<ChatHub> _hub;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<MessageController> _logger;
+        private readonly BlockingService _blockingService;
 
         public MessageController(
             IMessageRepository msgRepo,
             IHubContext<ChatHub> hub,
             IWebHostEnvironment env,
             AppDbContext context,
-            ILogger<MessageController> logger)
+            ILogger<MessageController> logger,
+            BlockingService blockingService)
         {
             _msgRepo = msgRepo;
             _hub = hub;
             _env = env;
             _context = context;
             _logger = logger;
+            _blockingService = blockingService;
         }
 
         // GET: /message/{chatId}
@@ -43,14 +48,26 @@ namespace AppChat.Controllers
         {
             try
             {
+                // Lấy userId từ JWT token
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdClaim, out int userId))
+                    return Unauthorized(new { message = "Invalid user ID in token" });
+
                 var messages = await _msgRepo.GetMessagesByChatIdAsync(chatId);
                 // Check if messages are null?
                 if (messages == null || !messages.Any())
                 {
-                    return Ok(new List<Message>());
+                    return Ok(new List<MessageDto>());
                 }
 
-                return Ok(messages);
+                // Lấy danh sách users bị current user chặn
+                var blockedUsers = await _blockingService.GetBlockedUsersByIdAsync(userId);
+                var blockedUserIds = blockedUsers.Select(b => b.Id).ToList();
+
+                // Lọc tin nhắn từ users bị chặn
+                var filteredMessages = messages.Where(m => !blockedUserIds.Contains(m.SenderId)).ToList();
+
+                return Ok(filteredMessages);
             }
             catch (Exception ex)
             {
@@ -98,6 +115,23 @@ namespace AppChat.Controllers
                     }
 
                     fileUrl = $"{Request.Scheme}://{Request.Host}/uploads/{fileName}";
+                }
+
+                // ====================================
+                // 1b) Kiểm tra blocking trước khi gửi
+                // ====================================
+                // Kiểm tra xem Sender có bị Receiver chặn không
+                var isBlockedBySender = await _blockingService.IsUserBlockedAsync(dto.ReceiverId, dto.SenderId);
+                if (isBlockedBySender)
+                {
+                    return BadRequest(new { message = "Bạn đã bị người này chặn" });
+                }
+
+                // Kiểm tra xem Sender có chặn Receiver không (không gửi được)
+                var isBlockedByReceiver = await _blockingService.IsUserBlockedAsync(dto.SenderId, dto.ReceiverId);
+                if (isBlockedByReceiver)
+                {
+                    return BadRequest(new { message = "Bạn đã chặn người này" });
                 }
 
                 // ====================================
@@ -220,6 +254,91 @@ namespace AppChat.Controllers
             }
         }
 
+
+
+        // PUT: /message/{id}
+        [Authorize]
+        [HttpPut("{messageId}")]
+        public async Task<IActionResult> EditMessage(int messageId, [FromBody] MessageUpdateDto dto)
+        {
+            try
+            {
+                var updatedMessage = await _msgRepo.EditMessageAsync(messageId, dto.Content);
+                
+                // Broadcast to both users in the chat
+                var message = await _context.Messages.FindAsync(messageId);
+                if (message != null)
+                {
+                    var chat = await _context.Chats.FindAsync(message.ChatId);
+                    if (chat != null)
+                    {
+                        await _hub.Clients.User(chat.UserAId.ToString())
+                            .SendAsync("MessageEdited", updatedMessage);
+                        await _hub.Clients.User(chat.UserBId.ToString())
+                            .SendAsync("MessageEdited", updatedMessage);
+                    }
+                }
+
+                return Ok(updatedMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Lỗi sửa tin nhắn", error = ex.Message });
+            }
+        }
+
+        // DELETE: /message/{id}
+        [Authorize]
+        [HttpDelete("{messageId}")]
+        public async Task<IActionResult> DeleteMessage(int messageId)
+        {
+            try
+            {
+                var message = await _context.Messages.FindAsync(messageId);
+                if (message == null)
+                    return NotFound(new { message = "Tin nhắn không tồn tại" });
+
+                bool deleted = await _msgRepo.DeleteMessageAsync(messageId);
+                
+                if (deleted)
+                {
+                    var chat = await _context.Chats.FindAsync(message.ChatId);
+                    if (chat != null)
+                    {
+                        // Broadcast deletion to both users
+                        await _hub.Clients.User(chat.UserAId.ToString())
+                            .SendAsync("MessageDeleted", messageId);
+                        await _hub.Clients.User(chat.UserBId.ToString())
+                            .SendAsync("MessageDeleted", messageId);
+                    }
+                }
+
+                return Ok(new { message = "Xóa tin nhắn thành công", deleted = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Lỗi xóa tin nhắn", error = ex.Message });
+            }
+        }
+
+        // GET: /message/search/{chatId}?q=searchTerm
+        [Authorize]
+        [HttpGet("search/{chatId}")]
+        public async Task<IActionResult> SearchMessages(int chatId, [FromQuery] string q)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(q))
+                    return BadRequest(new { message = "Từ khóa tìm kiếm không được để trống" });
+
+                var messages = await _msgRepo.SearchMessagesAsync(chatId, q);
+                return Ok(messages);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Lỗi tìm kiếm tin nhắn", error = ex.Message });
+            }
+        }
 
 
         [HttpPost("upload/init")]

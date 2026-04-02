@@ -42,5 +42,81 @@ namespace AppChat.Controllers
                 return BadRequest(new { message = e.Message });
             }
         }
+
+        // GET: /chat/{id}
+        [Authorize]
+        [HttpGet("{chatId}")]
+        public async Task<IActionResult> GetChatById(int chatId)
+        {
+            try
+            {
+                var chat = await _service.GetChatByIdAsync(chatId);
+                if (chat == null)
+                    return NotFound(new { message = "Chat không tồn tại" });
+
+                return Ok(chat);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
+
+        // DELETE: /chat/{id}
+        [Authorize]
+        [HttpDelete("{chatId}")]
+        public async Task<IActionResult> DeleteChat(int chatId)
+        {
+            try
+            {
+                bool deleted = await _service.DeleteChatAsync(chatId);
+                if (!deleted)
+                    return NotFound(new { message = "Chat không tồn tại" });
+
+                return Ok(new { message = "Xóa chat thành công" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
+
+        // PUT: /chat/{id}/archive
+        [Authorize]
+        [HttpPut("{chatId}/archive")]
+        public async Task<IActionResult> ArchiveChat(int chatId)
+        {
+            try
+            {
+                bool archived = await _service.ArchiveChatAsync(chatId);
+                if (!archived)
+                    return NotFound(new { message = "Chat không tồn tại" });
+
+                return Ok(new { message = "Lưu trữ chat thành công" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
+
+        // PUT: /chat/{id}/unarchive
+        [Authorize]
+        [HttpPut("{chatId}/unarchive")]
+        public async Task<IActionResult> UnarchiveChat(int chatId)
+        {
+            try
+            {
+                bool unarchived = await _service.UnarchiveChatAsync(chatId);
+                if (!unarchived)
+                    return NotFound(new { message = "Chat không tồn tại" });
+
+                return Ok(new { message = "Bỏ lưu trữ chat thành công" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
     }
 }

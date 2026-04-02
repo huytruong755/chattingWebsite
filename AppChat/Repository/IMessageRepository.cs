@@ -16,5 +16,11 @@ namespace AppChat.Repositories
             string fileType,
             string? fileUrl
         );
+
+        Task<MessageDto> EditMessageAsync(int messageId, string content);
+
+        Task<bool> DeleteMessageAsync(int messageId);
+
+        Task<List<MessageDto>> SearchMessagesAsync(int chatId, string searchTerm);
     }
 }

@@ -111,5 +111,69 @@ namespace AppChat.Repositories
                 Status = msg.Status
             };
         }
+
+        public async Task<MessageDto> EditMessageAsync(int messageId, string content)
+        {
+            var message = await _context.Messages.FindAsync(messageId);
+            if (message == null)
+                throw new Exception("Message not found");
+
+            message.Content = content;
+            message.EditedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            var sender = await _context.Users.FindAsync(message.SenderId);
+            var senderName = sender != null ? $"{sender.FirstName} {sender.LastName}" : "Unknown";
+
+            return new MessageDto
+            {
+                Id = message.Id,
+                ChatId = message.ChatId,
+                SenderId = message.SenderId,
+                SenderName = senderName,
+                Content = message.Content,
+                FileUrl = message.FileUrl,
+                FileType = message.FileType,
+                SentTime = TimeHelper.ConvertToVietnamTime(message.SentAt),
+                Status = message.Status
+            };
+        }
+
+        public async Task<bool> DeleteMessageAsync(int messageId)
+        {
+            var message = await _context.Messages.FindAsync(messageId);
+            if (message == null)
+                return false;
+
+            message.IsDeleted = true;
+            message.DeletedAt = DateTime.UtcNow;
+            message.Content = null;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<List<MessageDto>> SearchMessagesAsync(int chatId, string searchTerm)
+        {
+            return await _context.Messages
+                .Where(m => m.ChatId == chatId && m.IsDeleted == false && m.Content.Contains(searchTerm))
+                .Join(_context.Users,
+                      m => m.SenderId,
+                      u => u.Id,
+                      (m, u) => new MessageDto
+                      {
+                          Id = m.Id,
+                          ChatId = m.ChatId,
+                          SenderId = m.SenderId,
+                          SenderName = $"{u.FirstName} {u.LastName}",
+                          Content = m.Content,
+                          FileUrl = m.FileUrl,
+                          FileType = m.FileType,
+                          Status = m.Status,
+                          SentTime = TimeHelper.ConvertToVietnamTime(m.SentAt)
+                      })
+                .OrderBy(m => m.Id)
+                .ToListAsync();
+        }
     }
 }

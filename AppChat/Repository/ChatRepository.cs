@@ -40,5 +40,43 @@ namespace AppChat.Repositories
             _context.Chats.Update(chat);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> ArchiveChat(int chatId)
+        {
+            var chat = await _context.Chats.FindAsync(chatId);
+            if (chat == null)
+                return false;
+
+            chat.IsArchived = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UnarchiveChat(int chatId)
+        {
+            var chat = await _context.Chats.FindAsync(chatId);
+            if (chat == null)
+                return false;
+
+            chat.IsArchived = false;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteChat(int chatId)
+        {
+            var chat = await _context.Chats.FindAsync(chatId);
+            if (chat == null)
+                return false;
+
+            _context.Chats.Remove(chat);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Chat> GetChatById(int chatId)
+        {
+            return await _context.Chats.FindAsync(chatId);
+        }
     }
 }

@@ -1,0 +1,140 @@
+### AppChat API Testing - New Endpoints
+
+# ===== BASE URLs =====
+@baseUrl = http://localhost:5047
+@accessToken = YOUR_JWT_TOKEN_HERE
+
+### 1. Register User (for testing)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "phoneNumber": "0901234567",
+  "password": "test123",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+### 2. Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "phoneNumber": "0901234567",
+  "password": "test123"
+}
+
+### 3. Edit Message
+PUT {{baseUrl}}/message/1
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "messageId": 1,
+  "content": "Updated message content"
+}
+
+### 4. Delete Message
+DELETE {{baseUrl}}/message/1
+Authorization: Bearer {{accessToken}}
+
+### 5. Search Messages in Chat
+GET {{baseUrl}}/message/search/1?q=hello
+Authorization: Bearer {{accessToken}}
+
+### 6. Get Chat by ID
+GET {{baseUrl}}/chat/1
+Authorization: Bearer {{accessToken}}
+
+### 7. Archive Chat
+PUT {{baseUrl}}/chat/1/archive
+Authorization: Bearer {{accessToken}}
+
+### 8. Unarchive Chat
+PUT {{baseUrl}}/chat/1/unarchive
+Authorization: Bearer {{accessToken}}
+
+### 9. Delete Chat
+DELETE {{baseUrl}}/chat/1
+Authorization: Bearer {{accessToken}}
+
+### 10. Block User
+POST {{baseUrl}}/blocking/block
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "blockerId": 1,
+  "blockedUserId": 2
+}
+
+### 11. Unblock User
+DELETE {{baseUrl}}/blocking/unblock
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "blockerId": 1,
+  "blockedUserId": 2
+}
+
+### 12. Get Blocked Users List
+GET {{baseUrl}}/blocking/list/1
+Authorization: Bearer {{accessToken}}
+
+### 13. Check if User is Blocked
+GET {{baseUrl}}/blocking/check?blockerId=1&blockedUserId=2
+Authorization: Bearer {{accessToken}}
+
+### 14. Check if Blocked Both Ways
+GET {{baseUrl}}/blocking/check-both?userId1=1&userId2=2
+Authorization: Bearer {{accessToken}}
+
+### 15. Mark Message as Read
+POST {{baseUrl}}/readreceipt/mark
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "messageId": 1,
+  "userId": 2
+}
+
+### 16. Get Read Receipts for Message
+GET {{baseUrl}}/readreceipt/message/1
+Authorization: Bearer {{accessToken}}
+
+### 17. Check if Message Read by User
+GET {{baseUrl}}/readreceipt/check?messageId=1&userId=2
+Authorization: Bearer {{accessToken}}
+
+### 18. Get Read Count for Message
+GET {{baseUrl}}/readreceipt/count/1
+Authorization: Bearer {{accessToken}}
+
+### 19. Get Conversations (existing)
+GET {{baseUrl}}/chat
+Authorization: Bearer {{accessToken}}
+
+### 20. Send Message (existing - for reference)
+POST {{baseUrl}}/message/send
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="SenderId"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="ReceiverId"
+
+2
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="Content"
+
+Test message
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="FileType"
+
+text
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

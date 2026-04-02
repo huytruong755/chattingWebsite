@@ -21,5 +21,24 @@ namespace AppChat.Services
         {
             return await _repo.SendMessageAsync(chatId, senderId, receiverId, content, fileType, fileUrl);
         }
+
+        // Sửa tin nhắn
+        public async Task<MessageDto> EditMessageAsync(int messageId, string content)
+        {
+            return await _repo.EditMessageAsync(messageId, content);
+        }
+
+        // Xóa tin nhắn (soft delete)
+        public async Task<bool> DeleteMessageAsync(int messageId)
+        {
+            return await _repo.DeleteMessageAsync(messageId);
+        }
+
+        // Tìm kiếm tin nhắn
+        public async Task<List<MessageDto>> SearchMessagesAsync(int chatId, string searchTerm)
+        {
+            return await _repo.SearchMessagesAsync(chatId, searchTerm);
+        }
     }
 }
+
